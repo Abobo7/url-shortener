@@ -1,13 +1,20 @@
-import { Redis } from '@upstash/redis';
+const Redis = require('ioredis');
 
-// Initialize Upstash Redis client
-// Match the actual Vercel environment variable names
-const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_REDIS_URL,
-    token: process.env.UPSTASH_REDIS_REST_REDIS_TOKEN,
-});
+// Get Redis URL from environment
+const redisUrl = process.env.UPSTASH_REDIS_REST_REDIS_URL
+    || process.env.REDIS_URL
+    || process.env.KV_URL;
 
-export default async function handler(req, res) {
+// Create Redis client (lazy initialization)
+let redis = null;
+function getRedis() {
+    if (!redis && redisUrl) {
+        redis = new Redis(redisUrl);
+    }
+    return redis;
+}
+
+module.exports = async function handler(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: '只支持 GET 请求' });
     }
@@ -19,11 +26,15 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Get original URL from Upstash Redis
-        const url = await redis.get(`url:${id}`);
+        const client = getRedis();
+        if (!client) {
+            return res.redirect(302, '/?error=db_not_configured');
+        }
+
+        // Get original URL from Redis
+        const url = await client.get(`url:${id}`);
 
         if (!url) {
-            // Short URL not found, redirect to home
             return res.redirect(302, '/?error=not_found');
         }
 
@@ -34,4 +45,4 @@ export default async function handler(req, res) {
         console.error('Error redirecting:', error);
         return res.redirect(302, '/?error=server_error');
     }
-}
+};

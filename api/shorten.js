@@ -1,14 +1,21 @@
-import { Redis } from '@upstash/redis';
-import { nanoid } from 'nanoid';
+const Redis = require('ioredis');
+const { nanoid } = require('nanoid');
 
-// Initialize Upstash Redis client
-// Match the actual Vercel environment variable names
-const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_REDIS_URL,
-    token: process.env.UPSTASH_REDIS_REST_REDIS_TOKEN,
-});
+// Get Redis URL from environment
+const redisUrl = process.env.UPSTASH_REDIS_REST_REDIS_URL
+    || process.env.REDIS_URL
+    || process.env.KV_URL;
 
-export default async function handler(req, res) {
+// Create Redis client (lazy initialization)
+let redis = null;
+function getRedis() {
+    if (!redis && redisUrl) {
+        redis = new Redis(redisUrl);
+    }
+    return redis;
+}
+
+module.exports = async function handler(req, res) {
     // Handle CORS preflight
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
@@ -19,10 +26,8 @@ export default async function handler(req, res) {
     }
 
     // Check if Redis is configured
-    if (!process.env.UPSTASH_REDIS_REST_REDIS_URL) {
-        return res.status(500).json({
-            error: '数据库未配置'
-        });
+    if (!redisUrl) {
+        return res.status(500).json({ error: '数据库未配置' });
     }
 
     try {
@@ -47,8 +52,9 @@ export default async function handler(req, res) {
         // Generate short ID (7 characters)
         const id = nanoid(7);
 
-        // Store in Upstash Redis (expire in 1 year)
-        await redis.set(`url:${id}`, url, { ex: 60 * 60 * 24 * 365 });
+        // Store in Redis (expire in 1 year = 31536000 seconds)
+        const client = getRedis();
+        await client.set(`url:${id}`, url, 'EX', 31536000);
 
         // Generate short URL
         const host = req.headers.host;
@@ -66,4 +72,4 @@ export default async function handler(req, res) {
         console.error('Error creating short URL:', error);
         return res.status(500).json({ error: '服务器错误，请稍后重试' });
     }
-}
+};
