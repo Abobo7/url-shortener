@@ -1,4 +1,10 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+// Initialize Upstash Redis client
+const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
@@ -12,8 +18,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Get original URL from Vercel KV
-        const url = await kv.get(`url:${id}`);
+        // Get original URL from Upstash Redis
+        const url = await redis.get(`url:${id}`);
 
         if (!url) {
             // Short URL not found, redirect to home

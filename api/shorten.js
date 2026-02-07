@@ -1,5 +1,11 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import { nanoid } from 'nanoid';
+
+// Initialize Upstash Redis client
+const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export default async function handler(req, res) {
     // Handle CORS preflight
@@ -33,8 +39,8 @@ export default async function handler(req, res) {
         // Generate short ID (7 characters)
         const id = nanoid(7);
 
-        // Store in Vercel KV
-        await kv.set(`url:${id}`, url, { ex: 60 * 60 * 24 * 365 }); // Expire in 1 year
+        // Store in Upstash Redis (expire in 1 year)
+        await redis.set(`url:${id}`, url, { ex: 60 * 60 * 24 * 365 });
 
         // Generate short URL
         const host = req.headers.host;
