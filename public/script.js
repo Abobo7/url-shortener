@@ -34,9 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const authSwitchText = document.getElementById('auth-switch-text');
     const authSwitchBtn = document.getElementById('auth-switch-btn');
 
+    // Links section
+    const linksSection = document.getElementById('links-section');
+    const linksList = document.getElementById('links-list');
+    const refreshLinksBtn = document.getElementById('refresh-links-btn');
+
+    // Delete modal
+    const deleteModalBackdrop = document.getElementById('delete-modal-backdrop');
+    const deleteModalClose = document.getElementById('delete-modal-close');
+    const deleteCancelBtn = document.getElementById('delete-cancel-btn');
+    const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+
     // State
     let currentUser = null;
     let isLoginMode = true;
+    let linkToDelete = null;
 
     // Check current user on load
     checkAuth();
@@ -48,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.user) {
                 currentUser = data.user;
                 showUserMenu();
+                loadUserLinks();
             }
         } catch (error) {
             console.error('Auth check failed:', error);
@@ -59,14 +72,105 @@ document.addEventListener('DOMContentLoaded', () => {
         userMenu.classList.remove('hidden');
         userEmail.textContent = currentUser.email;
         customIdContainer.classList.remove('hidden');
+        linksSection.classList.remove('hidden');
     }
 
     function showAuthButtons() {
         authButtons.classList.remove('hidden');
         userMenu.classList.add('hidden');
         customIdContainer.classList.add('hidden');
+        linksSection.classList.add('hidden');
         currentUser = null;
     }
+
+    async function loadUserLinks() {
+        try {
+            const response = await fetch('/api/links');
+            const data = await response.json();
+
+            if (data.links && data.links.length > 0) {
+                linksList.innerHTML = data.links.map(link => `
+                    <div class="link-item" data-id="${link.id}">
+                        <div class="link-info">
+                            <div class="link-short">${link.shortUrl}</div>
+                            <div class="link-original">${link.originalUrl}</div>
+                        </div>
+                        <div class="link-actions">
+                            <button class="icon-button copy-link-btn" data-url="${link.shortUrl}" title="复制">
+                                <span class="material-symbols-outlined">content_copy</span>
+                            </button>
+                            <button class="icon-button delete-link-btn" data-id="${link.id}" title="删除">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add event listeners
+                linksList.querySelectorAll('.copy-link-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        navigator.clipboard.writeText(btn.dataset.url);
+                        btn.querySelector('.material-symbols-outlined').textContent = 'done';
+                        setTimeout(() => {
+                            btn.querySelector('.material-symbols-outlined').textContent = 'content_copy';
+                        }, 2000);
+                    });
+                });
+
+                linksList.querySelectorAll('.delete-link-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        linkToDelete = btn.dataset.id;
+                        deleteModalBackdrop.classList.remove('hidden');
+                    });
+                });
+            } else {
+                linksList.innerHTML = '<div class="links-empty">暂无短链接</div>';
+            }
+        } catch (error) {
+            console.error('Failed to load links:', error);
+        }
+    }
+
+    // Delete modal
+    function closeDeleteModal() {
+        deleteModalBackdrop.classList.add('hidden');
+        linkToDelete = null;
+    }
+
+    deleteModalClose.addEventListener('click', closeDeleteModal);
+    deleteCancelBtn.addEventListener('click', closeDeleteModal);
+    deleteModalBackdrop.addEventListener('click', (e) => {
+        if (e.target === deleteModalBackdrop) closeDeleteModal();
+    });
+
+    deleteConfirmBtn.addEventListener('click', async () => {
+        if (!linkToDelete) return;
+
+        deleteConfirmBtn.classList.add('loading');
+        deleteConfirmBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/delete?id=${linkToDelete}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                closeDeleteModal();
+                loadUserLinks();
+            } else {
+                alert(data.error || '删除失败');
+            }
+        } catch (error) {
+            alert('删除失败');
+        } finally {
+            deleteConfirmBtn.classList.remove('loading');
+            deleteConfirmBtn.disabled = false;
+        }
+    });
+
+    refreshLinksBtn.addEventListener('click', loadUserLinks);
 
     function openModal(isLogin) {
         isLoginMode = isLogin;
@@ -129,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUser = data.user;
             showUserMenu();
             closeModal();
+            loadUserLinks();
 
         } catch (error) {
             authError.textContent = error.message;
@@ -182,6 +287,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Clear custom ID input
             customIdInput.value = '';
+
+            // Reload links if logged in
+            if (currentUser && customId) {
+                loadUserLinks();
+            }
 
         } catch (error) {
             errorText.textContent = error.message;

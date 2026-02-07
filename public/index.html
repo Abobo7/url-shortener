@@ -84,6 +84,19 @@
             </div>
         </div>
 
+        <!-- User Links Section -->
+        <div class="surface-card links-card hidden" id="links-section">
+            <div class="card-header">
+                <h2>我的短链接</h2>
+                <button class="icon-button" id="refresh-links-btn" title="刷新">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+            </div>
+            <div id="links-list" class="links-list">
+                <div class="links-empty">暂无短链接</div>
+            </div>
+        </div>
+
         <footer>
             <span class="material-symbols-outlined">favorite</span>
             <span>托管于 Vercel</span>
@@ -119,6 +132,26 @@
             <div class="modal-footer">
                 <span id="auth-switch-text">还没有账号？</span>
                 <button class="text-button" id="auth-switch-btn">注册</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-backdrop hidden" id="delete-modal-backdrop">
+        <div class="modal-card delete-modal">
+            <div class="modal-header">
+                <h2>确认删除</h2>
+                <button class="icon-button" id="delete-modal-close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <p class="delete-message">确定要删除这个短链接吗？此操作无法撤销。</p>
+            <div class="delete-actions">
+                <button class="text-button" id="delete-cancel-btn">取消</button>
+                <button class="filled-button error-button" id="delete-confirm-btn">
+                    <span class="btn-text">删除</span>
+                    <div class="btn-loader"></div>
+                </button>
             </div>
         </div>
     </div>
