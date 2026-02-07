@@ -14,10 +14,27 @@
 </head>
 
 <body>
+    <!-- Top App Bar -->
+    <header class="top-app-bar">
+        <div class="top-app-bar-content">
+            <div class="app-title">
+                <span class="material-symbols-outlined">link</span>
+                <span>短链接</span>
+            </div>
+            <div class="auth-buttons" id="auth-buttons">
+                <button class="text-button" id="login-btn">登录</button>
+                <button class="filled-tonal-button" id="register-btn">注册</button>
+            </div>
+            <div class="user-menu hidden" id="user-menu">
+                <span class="user-email" id="user-email"></span>
+                <button class="text-button" id="logout-btn">登出</button>
+            </div>
+        </div>
+    </header>
+
     <main class="container">
         <div class="surface-card">
             <div class="card-header">
-                <span class="material-symbols-outlined icon-primary">link</span>
                 <h1>短链接生成器</h1>
             </div>
             <p class="supporting-text">将长链接转换为简短、易分享的短链接</p>
@@ -27,6 +44,15 @@
                     <input type="url" id="url-input" placeholder=" " required autocomplete="off">
                     <label for="url-input">输入您的链接</label>
                     <span class="material-symbols-outlined field-icon">language</span>
+                </div>
+
+                <!-- Custom ID Field (only for logged-in users) -->
+                <div class="text-field custom-id-field hidden" id="custom-id-container">
+                    <input type="text" id="custom-id-input" placeholder=" " autocomplete="off"
+                        pattern="[a-zA-Z0-9_-]{3,20}">
+                    <label for="custom-id-input">自定义后缀（可选）</label>
+                    <span class="material-symbols-outlined field-icon">edit</span>
+                    <span class="helper-text">3-20 个字符，字母、数字、下划线或连字符</span>
                 </div>
 
                 <button type="submit" id="submit-btn" class="filled-button">
@@ -63,6 +89,39 @@
             <span>托管于 Vercel</span>
         </footer>
     </main>
+
+    <!-- Auth Modal -->
+    <div class="modal-backdrop hidden" id="modal-backdrop">
+        <div class="modal-card" id="auth-modal">
+            <div class="modal-header">
+                <h2 id="modal-title">登录</h2>
+                <button class="icon-button" id="modal-close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="auth-form">
+                <div class="text-field">
+                    <input type="email" id="auth-email" placeholder=" " required>
+                    <label for="auth-email">邮箱</label>
+                    <span class="material-symbols-outlined field-icon">mail</span>
+                </div>
+                <div class="text-field">
+                    <input type="password" id="auth-password" placeholder=" " required minlength="6">
+                    <label for="auth-password">密码</label>
+                    <span class="material-symbols-outlined field-icon">lock</span>
+                </div>
+                <div id="auth-error" class="auth-error hidden"></div>
+                <button type="submit" class="filled-button" id="auth-submit-btn">
+                    <span class="btn-text" id="auth-submit-text">登录</span>
+                    <div class="btn-loader"></div>
+                </button>
+            </form>
+            <div class="modal-footer">
+                <span id="auth-switch-text">还没有账号？</span>
+                <button class="text-button" id="auth-switch-btn">注册</button>
+            </div>
+        </div>
+    </div>
 
     <script src="/script.js"></script>
 </body>
