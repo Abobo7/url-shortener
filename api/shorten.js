@@ -2,9 +2,14 @@ import { Redis } from '@upstash/redis';
 import { nanoid } from 'nanoid';
 
 // Initialize Upstash Redis client
+// Support multiple environment variable naming conventions
 const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    url: process.env.UPSTASH_REDIS_REST_URL
+        || process.env.KV_REST_API_URL
+        || process.env.REDIS_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN
+        || process.env.KV_REST_API_TOKEN
+        || process.env.REDIS_TOKEN,
 });
 
 export default async function handler(req, res) {
@@ -15,6 +20,19 @@ export default async function handler(req, res) {
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: '只支持 POST 请求' });
+    }
+
+    // Check if Redis is configured
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL
+        || process.env.KV_REST_API_URL
+        || process.env.REDIS_URL;
+
+    if (!redisUrl) {
+        console.error('Redis not configured. Available env vars:', Object.keys(process.env).filter(k => k.includes('REDIS') || k.includes('KV') || k.includes('UPSTASH')));
+        return res.status(500).json({
+            error: '数据库未配置，请联系管理员',
+            hint: '请在 Vercel 中连接 Upstash Redis 数据库'
+        });
     }
 
     try {
