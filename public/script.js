@@ -6,12 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const shortUrlInput = document.getElementById('short-url');
     const copyBtn = document.getElementById('copy-btn');
     const errorDiv = document.getElementById('error');
+    const errorText = errorDiv.querySelector('.error-text');
     const copyIcon = copyBtn.querySelector('.copy-icon');
     const checkIcon = copyBtn.querySelector('.check-icon');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const url = urlInput.value.trim();
         if (!url) return;
 
@@ -38,14 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             shortUrlInput.value = data.shortUrl;
             resultDiv.classList.remove('hidden');
-            
+
             // Reset copy button state
             copyBtn.classList.remove('copied');
             copyIcon.classList.remove('hidden');
             checkIcon.classList.add('hidden');
 
         } catch (error) {
-            errorDiv.textContent = error.message;
+            errorText.textContent = error.message;
             errorDiv.classList.remove('hidden');
         } finally {
             submitBtn.classList.remove('loading');
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     copyBtn.addEventListener('click', async () => {
         try {
             await navigator.clipboard.writeText(shortUrlInput.value);
-            
+
             // Show success state
             copyBtn.classList.add('copied');
             copyIcon.classList.add('hidden');

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,78 +8,63 @@
     <meta name="description" content="快速生成短链接，简洁美观，免费使用">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
-    <div class="background">
-        <div class="gradient-orb orb-1"></div>
-        <div class="gradient-orb orb-2"></div>
-        <div class="gradient-orb orb-3"></div>
-    </div>
-    
     <main class="container">
-        <div class="card">
-            <div class="logo">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M13.544 10.456a4.368 4.368 0 0 0-6.176 0l-3.089 3.088a4.367 4.367 0 1 0 6.176 6.177L12 18.177" stroke="url(#gradient1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M10.456 13.544a4.368 4.368 0 0 0 6.176 0l3.088-3.088a4.367 4.367 0 1 0-6.176-6.177L12 5.823" stroke="url(#gradient2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <defs>
-                        <linearGradient id="gradient1" x1="4" y1="10" x2="14" y2="20" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#6366f1"/>
-                            <stop offset="1" stop-color="#a855f7"/>
-                        </linearGradient>
-                        <linearGradient id="gradient2" x1="10" y1="4" x2="20" y2="14" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#a855f7"/>
-                            <stop offset="1" stop-color="#ec4899"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
+        <div class="surface-card">
+            <div class="card-header">
+                <span class="material-symbols-outlined icon-primary">link</span>
+                <h1>短链接生成器</h1>
             </div>
-            
-            <h1>短链接生成器</h1>
-            <p class="subtitle">将长链接转换为简短、易分享的短链接</p>
-            
+            <p class="supporting-text">将长链接转换为简短、易分享的短链接</p>
+
             <form id="shorten-form">
-                <div class="input-group">
-                    <input 
-                        type="url" 
-                        id="url-input" 
-                        placeholder="粘贴您的长链接..." 
-                        required
-                        autocomplete="off"
-                    >
-                    <button type="submit" id="submit-btn">
-                        <span class="btn-text">生成</span>
-                        <span class="btn-loader"></span>
-                    </button>
+                <div class="text-field">
+                    <input type="url" id="url-input" placeholder=" " required autocomplete="off">
+                    <label for="url-input">输入您的链接</label>
+                    <span class="material-symbols-outlined field-icon">language</span>
                 </div>
+
+                <button type="submit" id="submit-btn" class="filled-button">
+                    <span class="material-symbols-outlined">bolt</span>
+                    <span class="btn-text">生成短链接</span>
+                    <div class="btn-loader"></div>
+                </button>
             </form>
-            
-            <div id="result" class="result hidden">
-                <div class="result-label">您的短链接</div>
+
+            <div id="result" class="result-container hidden">
+                <div class="result-label">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    您的短链接已生成
+                </div>
                 <div class="result-content">
-                    <input type="text" id="short-url" readonly>
-                    <button type="button" id="copy-btn" class="copy-btn">
-                        <svg class="copy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                        <svg class="check-icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                    <div class="outlined-text-field">
+                        <input type="text" id="short-url" readonly>
+                    </div>
+                    <button type="button" id="copy-btn" class="tonal-button">
+                        <span class="material-symbols-outlined copy-icon">content_copy</span>
+                        <span class="material-symbols-outlined check-icon hidden">done</span>
                     </button>
                 </div>
             </div>
-            
-            <div id="error" class="error hidden"></div>
+
+            <div id="error" class="error-container hidden">
+                <span class="material-symbols-outlined">error</span>
+                <span class="error-text"></span>
+            </div>
         </div>
-        
+
         <footer>
-            <p>使用 ❤️ 构建 · 托管于 Vercel</p>
+            <span class="material-symbols-outlined">favorite</span>
+            <span>托管于 Vercel</span>
         </footer>
     </main>
-    
+
     <script src="/script.js"></script>
 </body>
+
 </html>
